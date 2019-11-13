@@ -10,15 +10,15 @@
     >
       <g>
         <template v-for="i in SIZE-1">
-          <line :key="`x${i}`" class="grid" :x1="i" :x2="i" y1="0" y2="100"></line>
-          <line :key="`y${i}`" class="grid" :y1="i" :y2="i" x1="0" x2="100"></line>
+          <line :key="`x${i}`" class="grid" :x1="i" :x2="i" y1="0" :y2="SIZE"></line>
+          <line :key="`y${i}`" class="grid" :y1="i" :y2="i" x1="0" :x2="SIZE"></line>
         </template>
       </g>
 
       <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">{{distanceRounded}}</text>
 
-      <line class="axis" :x1="SIZE/2" :x2="SIZE/2" y1="0" y2="100"></line>
-      <line class="axis" :y1="SIZE/2" :y2="SIZE/2" x1="0" x2="100"></line>
+      <line class="axis" :x1="SIZE/2" :x2="SIZE/2" y1="0" :y2="SIZE"></line>
+      <line class="axis" :y1="SIZE/2" :y2="SIZE/2" x1="0" :x2="SIZE"></line>
 
       <path class="square" :d="squarePath"></path>
       <circle
@@ -281,8 +281,7 @@ body {
 }
 
 svg {
-  max-width: 100vw;
-  max-height: 100vh;
+  width: 800px;
 }
 
 line.grid {
