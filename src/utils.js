@@ -1,9 +1,19 @@
 export function roundWithPrecision(v) {
-  return Math.round(v * 10000) / 10000;
+  return v.toFixed && v.toFixed(2);
 }
 
 export function getDistanceBetweenPoints(a, b) {
-  return roundWithPrecision(
-    Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
-  );
+  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+}
+
+export function getVectorsScalarMul(a, b) {
+  return a.x * b.x + a.y * b.y;
+}
+
+export function getVectorLength(a) {
+  return getDistanceBetweenPoints(a.begin, a.end);
+}
+
+export function getVectorsCosine(a, b) {
+  return getVectorsScalarMul(a, b) / (getVectorLength(a) * getVectorLength(b));
 }
