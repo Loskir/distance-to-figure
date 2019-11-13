@@ -1,5 +1,5 @@
 export function roundWithPrecision(v) {
-  return v.toFixed && v.toFixed(2);
+  return v === 0 ? '0.00' : v.toFixed && v.toFixed(2);
 }
 
 export function getDistanceBetweenPoints(a, b) {
