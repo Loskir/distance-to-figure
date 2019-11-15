@@ -10,39 +10,40 @@
     >
       <g>
         <template v-for="i in SIZE-1">
-          <line :key="`x${i}`" class="grid" :x1="i" :x2="i" y1="0" :y2="SIZE"></line>
-          <line :key="`y${i}`" class="grid" :y1="i" :y2="i" x1="0" :x2="SIZE"></line>
+          <line :key="`x${i}`" class="grid" :x1="i" :x2="i" y1="0" :y2="SIZE"/>
+          <line :key="`y${i}`" class="grid" :y1="i" :y2="i" x1="0" :x2="SIZE"/>
         </template>
       </g>
 
       <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">{{distanceRounded}}</text>
 
-      <line class="axis" :x1="SIZE/2" :x2="SIZE/2" y1="0" :y2="SIZE"></line>
-      <line class="axis" :y1="SIZE/2" :y2="SIZE/2" x1="0" :x2="SIZE"></line>
+      <line class="axis" :x1="SIZE/2" :x2="SIZE/2" y1="0" :y2="SIZE"/>
+      <line class="axis" :y1="SIZE/2" :y2="SIZE/2" x1="0" :x2="SIZE"/>
 
-      <path class="square" :d="squarePath"></path>
+      <path class="square" :d="squarePath"/>
       <circle
         class="point"
         :cx="formatX(pointX)"
         :cy="formatY(pointY)"
         r=".25"
         @mousedown="pointDragging = true"
-      ></circle>
+      />
       <circle
         class="point"
         :cx="formatX(squareCenterX)"
         :cy="formatY(squareCenterY)"
         r=".25"
         @mousedown="squareCenterDragging = true"
-      ></circle>
+      />
       <circle
         class="point"
         :cx="formatX(squarePointX)"
         :cy="formatY(squarePointY)"
         r=".15"
         @mousedown="squarePointDragging = true"
-      ></circle>
+      />
     </svg>
+    <input type="number" v-model="sides" min="3"/>
   </div>
 </template>
 
@@ -90,7 +91,9 @@ export default {
 
     squarePointRelativeX: 0,
     squarePointRelativeY: 3,
-    squarePointDragging: false
+    squarePointDragging: false,
+
+    sides: 5,
   }),
   methods: {
     formatX(x) {
@@ -160,11 +163,21 @@ export default {
       };
     },
 
+    vertexAngle() {
+      return Math.PI * (this.sides - 2) / this.sides
+    },
+
     squareAngle() {
-      return Math.atan2(this.squarePointRelativeX, this.squarePointRelativeY);
+      return -Math.atan2(this.squarePointRelativeX, this.squarePointRelativeY);
+    },
+    distanceToSide() {
+      return getDistanceBetweenPoints(this.squareCenter, this.squarePoint)
+    },
+    distanceToVertex() {
+      return this.distanceToSide / Math.sin(this.vertexAngle/2)
     },
     squareSize() {
-      return 2 * getDistanceBetweenPoints(this.squareCenter, this.squarePoint);
+      return 2* this.distanceToSide / Math.cos(this.vertexAngle/2);
     },
 
     squarePointX: {
@@ -186,28 +199,24 @@ export default {
 
     squareCorners() {
       const c = this.squareCenter;
-      const a = this.squareSize;
-      const al = -this.squareAngle;
+      const a = this.distanceToVertex;
+      // const al = -this.squareAngle + Math.PI/2 - Math.PI/(this.sides/2);
+      const al = this.squareAngle + Math.PI/2 - Math.PI/this.sides;
 
       const pify = f => Math.PI * f;
-      return [
-        {
-          x: c.x + (a / Math.sqrt(2)) * Math.cos(al + pify(1 / 4)),
-          y: c.y + (a / Math.sqrt(2)) * Math.sin(al + pify(1 / 4))
-        },
-        {
-          x: c.x + (a / Math.sqrt(2)) * Math.cos(al + pify(3 / 4)),
-          y: c.y + (a / Math.sqrt(2)) * Math.sin(al + pify(3 / 4))
-        },
-        {
-          x: c.x + (a / Math.sqrt(2)) * Math.cos(al + pify(5 / 4)),
-          y: c.y + (a / Math.sqrt(2)) * Math.sin(al + pify(5 / 4))
-        },
-        {
-          x: c.x + (a / Math.sqrt(2)) * Math.cos(al + pify(7 / 4)),
-          y: c.y + (a / Math.sqrt(2)) * Math.sin(al + pify(7 / 4))
-        }
-      ];
+
+      let points = []
+
+      const n = this.sides
+
+      for (let i = 0; i < n; i++) {
+        points.push({
+          x: c.x + a * Math.cos(al + pify(i*2 / n)),
+          y: c.y + a * Math.sin(al + pify(i*2 / n))
+        })
+      }
+
+      return points
     },
 
     squarePath() {
@@ -218,11 +227,10 @@ export default {
 
       const points = this.squareCorners.map(formatPoint);
 
+      points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x}, ${p.y}`)
+
       return [
-        `M ${points[0].x}, ${points[0].y}`,
-        `L ${points[1].x}, ${points[1].y}`,
-        `L ${points[2].x}, ${points[2].y}`,
-        `L ${points[3].x}, ${points[3].y}`,
+        ...points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x}, ${p.y}`),
         "Z"
       ].join(" ");
     },
