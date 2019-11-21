@@ -1,4 +1,4 @@
 module.exports = {
   outputDir: 'docs',
-  publicPath: '/distance-to-square/'
+  publicPath: '/distance-to-figure/'
 }
